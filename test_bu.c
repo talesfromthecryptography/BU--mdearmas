@@ -10,13 +10,13 @@ int main() {
 
   bu_readhex(&a,"CAB51AFFBEEF");
   bu_readhex(&b,"111111111111");
-  //bu_cpy(&c, &a);
+  bu_cpy(&c, &a);
 
   bu_dbg_printf(&a);
   bu_dbg_printf(&b);
 
   //bu_add(&c, &a, &b);
 
-  //bu_dbg_printf(&c);
+  bu_dbg_printf(&c);
   return 0;
 }
