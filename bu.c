@@ -12,13 +12,13 @@ void bu_cpy(bigunsigned *dest, bigunsigned *src) {
   dest->base = 0;
 
   // reset upper 0s in dest
-  memset(dest->digit+cnt, 0, sizeof(uint32_t)*BU_DIGITS-cnt);
+  memset(dest->digit, 0, sizeof(uint32_t)*BU_DIGITS);
 
   uint8_t i_dest = 0; // TODO: This is wrong. Fix it.
   uint8_t i_src = src->base;
 
   while (cnt-- > 0) {
-    dest->digit[i_dest++] = src->digit[i_src++];
+    dest->digit[i_dest--] = src->digit[i_src--];
   }
 }
 
@@ -117,14 +117,16 @@ uint16_t bu_len(bigunsigned *a_ptr) {
 void bu_readhex(bigunsigned * a_ptr, char *s) {
   bu_clear(a_ptr);
 
-  unsigned pos = 0;
+  unsigned cnt = 0;
+  unsigned pos = strlen(s)-1;
   char *s_ptr = s;
-  while (*s_ptr && pos < BU_MAX_HEX) {
+  while (*s_ptr && cnt < BU_MAX_HEX) {
     a_ptr->digit[pos>>3] |= (((uint32_t)hex2bin(*s_ptr)) << ((pos & 0x7)<<2));
-    pos++;
+    cnt++;
+    pos--;
     s_ptr++;
   }
-  a_ptr->used = (pos>>3) + ((pos&0x7)!=0);
+  a_ptr->used = (cnt>>3) + ((cnt&0x7)!=0);
 }
 
 //
