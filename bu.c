@@ -35,9 +35,22 @@ void bu_shl_ip(bigunsigned* a_ptr, uint16_t cnt) {
   uint16_t wrds = cnt >> 5; // # of whole words to shift
   uint16_t bits = cnt &0x1f;// number of bits in a word to shift
 
-  uint32_t mask = 0xffffffff << bits;
+  uint32_t mask1 = 0xffffffff << (BU_BITS_PER_DIGIT - bits); //isolates the bits that may need to shift words
+  uint32_t mask2 = 0xffffffff >> (BU_BITS_PER_DIGIT - bits); //isolates the bits that will not shift words
 
-  // You implement. Avoid memory copying as much as possible.
+  uint16_t i = 0;
+  uint16_t pos = (a_ptr->used)+(a_ptr->base);
+
+  while(i++ < a_ptr->used) {
+    a_ptr->digit[pos+1] |= ((a_ptr->digit[pos] & mask1) >> (BU_BITS_PER_DIGIT - bits)); //moves bits up a word
+    a_ptr->digit[pos] |= mask2; //removes the bits that have shifted registers
+    a_ptr->digit[pos] <<= bits; //shifts the word
+    pos--; //move down a word
+  }
+
+  //Implement: shift a_ptr->base down the number of whole words, use modulo to make circular(?)
+
+  a_ptr->used += wrds; //Implement: way to keep track if overflow happened (overflow = extra +1)
 }
 
 // Produce a = b + c

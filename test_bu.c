@@ -12,11 +12,13 @@ int main() {
   bu_readhex(&b,"111111111111");
   bu_cpy(&c, &a);
 
-  bu_dbg_printf(&a);
-  bu_dbg_printf(&b);
+  bu_shl_ip(&a, 15);
+
+  //bu_dbg_printf(&a);
+  //bu_dbg_printf(&b);
 
   //bu_add(&c, &a, &b);
 
-  bu_dbg_printf(&c);
+  //bu_dbg_printf(&c);
   return 0;
 }

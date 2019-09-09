@@ -24,7 +24,7 @@ void bu_cpy(bigunsigned *dest, bigunsigned *src);
 void bu_clear(bigunsigned *a_ptr);
 
 //  a = b<<cnt
-void bu_shl(bigunsigned* a_ptr, uint16_t cnt);
+void bu_shl(bigunsigned* a_ptr, bigunsigned* b_ptr, uint16_t cnt);
 //  a <<= cnt
 // Shift in place a big unsigned by cnt bits to the left
 // Example: beef shifted by 4 results in beef0
@@ -86,7 +86,7 @@ static inline uint8_t hex2bin(char c) {
 //        be legal input resulting in te value 0xDEADBEEF.
 
 void bu_readhex(bigunsigned * a_ptr, char *s);
-// 
+//
 void bu_dbg_printf(bigunsigned *a_ptr);
 
 #endif
