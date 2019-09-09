@@ -36,7 +36,7 @@ void bu_shl_ip(bigunsigned* a_ptr, uint16_t cnt) {
   uint16_t bits = cnt &0x1f;// number of bits in a word to shift
 
   uint32_t mask1 = 0xffffffff << (BU_BITS_PER_DIGIT - bits); //isolates the bits that may need to shift words
-  uint32_t mask2 = 0xffffffff >> (BU_BITS_PER_DIGIT - bits); //isolates the bits that will not shift words
+  uint32_t mask2 = 0xffffffff >> bits; //isolates the bits that will not shift words
 
   uint16_t i = 0;
   uint16_t pos = (a_ptr->used)+(a_ptr->base);
@@ -51,6 +51,29 @@ void bu_shl_ip(bigunsigned* a_ptr, uint16_t cnt) {
   //Implement: shift a_ptr->base down the number of whole words, use modulo to make circular(?)
 
   a_ptr->used += wrds; //Implement: way to keep track if overflow happened (overflow = extra +1)
+}
+
+void bu_shr_ip(bigunsigned* a_ptr, uint16_t cnt) {
+  uint16_t wrds = cnt >> 5; // # of whole words to shift
+  uint16_t bits = cnt &0x1f;// number of bits in a word to shift
+
+  uint32_t mask1 = 0xffffffff >> (BU_BITS_PER_DIGIT - bits); //isolates the bits that may need to shift words
+  uint32_t mask2 = 0xffffffff << bits; //isolates the bits that will not shift words
+  uint32_t temp;
+
+  uint16_t pos = 0;
+
+  while(pos < a_ptr->used) {
+    temp = ((a_ptr->digit[pos] & mask1) << (BU_BITS_PER_DIGIT - bits));
+    a_ptr->digit[pos] &= mask2; //removes the bits that have shifted registers
+    a_ptr->digit[pos] >>= bits; //shifts the word
+    if(pos > 0)
+      a_ptr->digit[pos-1] |= temp; //move bits down a register
+    pos++; //move up a word
+  }
+
+  a_ptr->base += wrds; //shifts the index of the least significant position
+  a_ptr->used -= wrds; //shifts number of words used
 }
 
 // Produce a = b + c

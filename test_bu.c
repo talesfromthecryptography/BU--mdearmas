@@ -8,13 +8,15 @@ int main() {
   bigunsigned a,b,c;
   char s[BU_MAX_HEX+1];
 
-  bu_readhex(&a,"CAB51AFFBEEF");
+  bu_readhex(&a,"CAB51AFFDEADBEEF");
   bu_readhex(&b,"111111111111");
   bu_cpy(&c, &a);
 
-  bu_shl_ip(&a, 15);
+  bu_dbg_printf(&a);
 
-  //bu_dbg_printf(&a);
+  bu_shr_ip(&a, 36);
+
+  bu_dbg_printf(&a);
   //bu_dbg_printf(&b);
 
   //bu_add(&c, &a, &b);
