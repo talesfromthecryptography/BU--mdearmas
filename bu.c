@@ -37,23 +37,26 @@ void bu_shl_ip(bigunsigned* a_ptr, uint16_t cnt) {
 
   uint32_t mask1 = 0xffffffff << (BU_BITS_PER_DIGIT - bits); //isolates the bits that may need to shift words
   uint32_t mask2 = 0xffffffff >> bits; //isolates the bits that will not shift words
+  uint32_t temp;
 
   uint16_t i = 0;
-  uint16_t pos = (a_ptr->used)+(a_ptr->base);
+  uint16_t pos = (a_ptr->used)+(a_ptr->base)-1;
 
   while(i++ < a_ptr->used) {
-    a_ptr->digit[pos+1] |= ((a_ptr->digit[pos] & mask1) >> (BU_BITS_PER_DIGIT - bits)); //moves bits up a word
-    a_ptr->digit[pos] |= mask2; //removes the bits that have shifted registers
+    temp = (a_ptr->digit[pos] & mask1) >> (BU_BITS_PER_DIGIT - bits);
+    a_ptr->digit[pos] &= mask2; //removes the bits that have shifted registers
     a_ptr->digit[pos] <<= bits; //shifts the word
+    a_ptr->digit[pos+1] |= temp; //moves bits up a word
     pos--; //move down a word
   }
 
-  //Implement: shift a_ptr->base down the number of whole words, use modulo to make circular(?)
-
-  a_ptr->used += wrds; //Implement: way to keep track if overflow happened (overflow = extra +1)
+  a_ptr->base -= wrds;
+  a_ptr->used += wrds;
 }
 
 void bu_shr(bigunsigned* a_ptr, bigunsigned* b_ptr, uint16_t cnt) {
+  bu_clear(a_ptr);
+
   uint16_t wrds = cnt >> 5; // # of whole words to shift
   uint16_t bits = cnt &0x1f;// number of bits in a word to shift
 
@@ -64,17 +67,18 @@ void bu_shr(bigunsigned* a_ptr, bigunsigned* b_ptr, uint16_t cnt) {
   uint16_t pos = b_ptr->base + wrds;
   uint16_t index = 0;
 
+  a_ptr->base = 0;
+
   while(pos < b_ptr->used) {
     temp = ((b_ptr->digit[pos] & mask1) << (BU_BITS_PER_DIGIT - bits));
     a_ptr->digit[index] = b_ptr->digit[pos] & mask2; //removes the bits that have shifted registers
     a_ptr->digit[index] >>= bits; //shifts the word
-    if(index > 0)
+    if(index != a_ptr->base)
       a_ptr->digit[index-1] |= temp; //move bits down a register
     pos++; //move up a word
     index++;
   }
 
-  a_ptr->base = 0; //shifts the index of the least significant position
   a_ptr->used = b_ptr->used - wrds; //shifts number of words used
 }
 
@@ -93,7 +97,7 @@ void bu_shr_ip(bigunsigned* a_ptr, uint16_t cnt) {
     temp = ((a_ptr->digit[pos] & mask1) << (BU_BITS_PER_DIGIT - bits));
     a_ptr->digit[pos] &= mask2; //removes the bits that have shifted registers
     a_ptr->digit[pos] >>= bits; //shifts the word
-    if(pos > a_ptr->base)
+    if(pos != a_ptr->base)
       a_ptr->digit[pos-1] |= temp; //move bits down a register
     pos++; //move up a word
   }
@@ -197,6 +201,6 @@ void bu_dbg_printf(bigunsigned *a_ptr) {
   uint16_t i = a_ptr->used;
   printf("Digits: ");
   while (i-- > 0)
-    printf("%8x ", a_ptr->digit[a_ptr->base+i]);
+    printf("%8x ", a_ptr->digit[(a_ptr->base+i)%BU_DIGITS]);
   printf("Length: %x\n", bu_len(a_ptr));
 }

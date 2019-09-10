@@ -15,13 +15,13 @@ int main() {
   bu_dbg_printf(&a);
 
   bu_shr_ip(&a, 36);
-
   bu_dbg_printf(&a);
 
   bu_shr(&d, &c, 36);
-
   bu_dbg_printf(&d);
-  //bu_dbg_printf(&b);
+
+  bu_shl_ip(&b, 36);
+  bu_dbg_printf(&b);
 
   //bu_add(&c, &a, &b);
 
