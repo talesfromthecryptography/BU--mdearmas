@@ -29,6 +29,33 @@ void bu_clear(bigunsigned *a_ptr) {
   a_ptr->base = 0;
 }
 
+void bu_shl(bigunsigned* a_ptr, bigunsigned* b_ptr, uint16_t cnt){
+  bu_clear(a_ptr);
+
+  uint16_t wrds = cnt >> 5; // # of whole words to shift
+  uint16_t bits = cnt &0x1f;// number of bits in a word to shift
+
+  uint32_t mask1 = 0xffffffff << (BU_BITS_PER_DIGIT - bits); //isolates the bits that may need to shift words
+  uint32_t mask2 = 0xffffffff >> bits; //isolates the bits that will not shift words
+  uint32_t temp;
+
+  a_ptr->base = 0;
+  a_ptr->used = b_ptr->used + wrds;
+  uint16_t index = a_ptr->used - 1;
+
+  uint16_t i = 0;
+  uint16_t pos = ((b_ptr->used)+(b_ptr->base)-1)%BU_DIGITS;
+
+  while(i++ < b_ptr->used) {
+    temp = (b_ptr->digit[pos] & mask1) >> (BU_BITS_PER_DIGIT - bits);
+    a_ptr->digit[index] = b_ptr->digit[pos] & mask2; //removes the bits that have shifted registers
+    a_ptr->digit[index] <<= bits; //shifts the word
+    a_ptr->digit[index+1] |= temp; //moves bits up a word
+    pos--; //move down a word
+    index--;
+  }
+}
+
 // Shift in place a bigunsigned by cnt bits to the left
 // Example: beef shifted by 4 results in beef0
 void bu_shl_ip(bigunsigned* a_ptr, uint16_t cnt) {
@@ -40,7 +67,9 @@ void bu_shl_ip(bigunsigned* a_ptr, uint16_t cnt) {
   uint32_t temp;
 
   uint16_t i = 0;
-  uint16_t pos = (a_ptr->used)+(a_ptr->base)-1;
+  uint16_t pos = ((a_ptr->used)+(a_ptr->base)-1) % BU_DIGITS;
+
+  //note: seg fault happens if base > used (aka wraparound). unsure of cause.
 
   while(i++ < a_ptr->used) {
     temp = (a_ptr->digit[pos] & mask1) >> (BU_BITS_PER_DIGIT - bits);
@@ -92,8 +121,11 @@ void bu_shr_ip(bigunsigned* a_ptr, uint16_t cnt) {
 
   a_ptr->base += wrds; //shifts the index of the least significant position
   uint16_t pos = a_ptr->base;
+  uint16_t i = 0;
 
-  while(pos < a_ptr->used) {
+  //note: seg fault happens if base > used (aka: wraparound). unsure of cause.
+
+  while(i++ < a_ptr->used) {
     temp = ((a_ptr->digit[pos] & mask1) << (BU_BITS_PER_DIGIT - bits));
     a_ptr->digit[pos] &= mask2; //removes the bits that have shifted registers
     a_ptr->digit[pos] >>= bits; //shifts the word
