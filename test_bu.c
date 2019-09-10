@@ -5,7 +5,7 @@
 
 
 int main() {
-  bigunsigned a,b,c;
+  bigunsigned a,b,c,d;
   char s[BU_MAX_HEX+1];
 
   bu_readhex(&a,"CAB51AFFDEADBEEF");
@@ -17,6 +17,10 @@ int main() {
   bu_shr_ip(&a, 36);
 
   bu_dbg_printf(&a);
+
+  bu_shr(&d, &c, 36);
+
+  bu_dbg_printf(&d);
   //bu_dbg_printf(&b);
 
   //bu_add(&c, &a, &b);

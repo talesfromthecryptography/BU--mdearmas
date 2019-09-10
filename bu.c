@@ -53,6 +53,31 @@ void bu_shl_ip(bigunsigned* a_ptr, uint16_t cnt) {
   a_ptr->used += wrds; //Implement: way to keep track if overflow happened (overflow = extra +1)
 }
 
+void bu_shr(bigunsigned* a_ptr, bigunsigned* b_ptr, uint16_t cnt) {
+  uint16_t wrds = cnt >> 5; // # of whole words to shift
+  uint16_t bits = cnt &0x1f;// number of bits in a word to shift
+
+  uint32_t mask1 = 0xffffffff >> (BU_BITS_PER_DIGIT - bits); //isolates the bits that may need to shift words
+  uint32_t mask2 = 0xffffffff << bits; //isolates the bits that will not shift words
+  uint32_t temp;
+
+  uint16_t pos = b_ptr->base + wrds;
+  uint16_t index = 0;
+
+  while(pos < b_ptr->used) {
+    temp = ((b_ptr->digit[pos] & mask1) << (BU_BITS_PER_DIGIT - bits));
+    a_ptr->digit[index] = b_ptr->digit[pos] & mask2; //removes the bits that have shifted registers
+    a_ptr->digit[index] >>= bits; //shifts the word
+    if(index > 0)
+      a_ptr->digit[index-1] |= temp; //move bits down a register
+    pos++; //move up a word
+    index++;
+  }
+
+  a_ptr->base = 0; //shifts the index of the least significant position
+  a_ptr->used = b_ptr->used - wrds; //shifts number of words used
+}
+
 void bu_shr_ip(bigunsigned* a_ptr, uint16_t cnt) {
   uint16_t wrds = cnt >> 5; // # of whole words to shift
   uint16_t bits = cnt &0x1f;// number of bits in a word to shift
@@ -61,18 +86,18 @@ void bu_shr_ip(bigunsigned* a_ptr, uint16_t cnt) {
   uint32_t mask2 = 0xffffffff << bits; //isolates the bits that will not shift words
   uint32_t temp;
 
-  uint16_t pos = 0;
+  a_ptr->base += wrds; //shifts the index of the least significant position
+  uint16_t pos = a_ptr->base;
 
   while(pos < a_ptr->used) {
     temp = ((a_ptr->digit[pos] & mask1) << (BU_BITS_PER_DIGIT - bits));
     a_ptr->digit[pos] &= mask2; //removes the bits that have shifted registers
     a_ptr->digit[pos] >>= bits; //shifts the word
-    if(pos > 0)
+    if(pos > a_ptr->base)
       a_ptr->digit[pos-1] |= temp; //move bits down a register
     pos++; //move up a word
   }
 
-  a_ptr->base += wrds; //shifts the index of the least significant position
   a_ptr->used -= wrds; //shifts number of words used
 }
 
