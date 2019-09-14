@@ -149,8 +149,7 @@ void bu_add(bigunsigned *a_ptr, bigunsigned *b_ptr, bigunsigned *c_ptr) {
   uint8_t  a_dig = 0;
 
   while (cnt < min_used) {
-    nxt = ((uint64_t)b_ptr->digit[b_dig++])
-          + (uint64_t)(c_ptr->digit[c_dig++]) + carry;
+    nxt = ((uint64_t)b_ptr->digit[b_dig++]) + (uint64_t)(c_ptr->digit[c_dig++]) + carry;
     carry = 0 != (nxt&0x100000000);
     a_ptr->digit[a_dig++] = (uint32_t)nxt;
     cnt++;
@@ -187,6 +186,51 @@ void bu_add(bigunsigned *a_ptr, bigunsigned *b_ptr, bigunsigned *c_ptr) {
   }
 
   a_ptr->base = 0;
+  a_ptr->used = cnt;
+}
+
+void bu_add_ip(bigunsigned *a_ptr, bigunsigned *b_ptr)
+{
+  uint8_t carry = 0;
+  uint64_t nxt;
+  uint16_t cnt = 0;
+  uint16_t min_used = a_ptr->used <= b_ptr->used
+                      ? a_ptr->used : b_ptr->used;
+  uint8_t  a_dig = a_ptr->base;
+  uint8_t  b_dig = b_ptr->base;
+
+  while (cnt < min_used) {
+    nxt = ((uint64_t)a_ptr->digit[a_dig++]) + (uint64_t)(b_ptr->digit[b_dig++]) + carry;
+    carry = 0 != (nxt&0x100000000);
+    a_ptr->digit[a_dig-1] = (uint32_t)nxt;
+    cnt++;
+  }
+
+  while (cnt < a_ptr->used && carry) {
+    nxt = ((uint64_t)a_ptr->digit[a_dig++]) + carry;
+    carry = 0 != (nxt&0x100000000);
+    a_ptr->digit[a_dig-1] = (uint32_t)nxt;
+    cnt++;
+  }
+
+  while (cnt < b_ptr->used && carry) {
+    nxt = ((uint64_t)b_ptr->digit[b_dig++]) + carry;
+    carry = 0 != (nxt&0x100000000);
+    a_ptr->digit[a_dig++] = (uint32_t)nxt;
+    cnt++;
+  }
+
+  while (cnt < b_ptr->used) {
+    a_ptr->digit[a_dig++] = b_ptr->digit[b_dig++];
+    cnt++;
+  }
+
+  while (cnt < BU_DIGITS && carry) {
+    a_ptr->digit[a_dig++] = 1;
+    carry = 0;
+    cnt++;
+  }
+
   a_ptr->used = cnt;
 }
 

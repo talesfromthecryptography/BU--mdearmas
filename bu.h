@@ -41,7 +41,7 @@ void bu_shr_ip(bigunsigned* a_ptr, uint16_t cnt);
 void bu_add(bigunsigned *a_ptr, bigunsigned *b_ptr, bigunsigned *c_ptr);
 //  a += b
 void bu_add_ip(bigunsigned *a_ptr, bigunsigned *b_ptr);
-// return the length in bits (should always be less or equal to 32*a->used)
+
 
 
 // a = b*d
@@ -59,7 +59,7 @@ void bu_sqr(bigunsigned *a_ptr, bigunsigned *b_ptr);
 // a *= a
 void bu_sqr_ip(bigunsigned *a_ptr);
 
-// Count of the bits, excluding leading 0s
+// return the length in bits (should always be less or equal to 32*a->used)
 uint16_t bu_len(bigunsigned *a_ptr);
 
 // Convert single ascii character hex digit to numerical value
