@@ -10,10 +10,9 @@ int main() {
 
   bu_readhex(&a,"CAB51AFFDEADBEEF");
   bu_readhex(&b,"111111111111");
-  //bu_cpy(&c, &a);
-  //bu_cpy(&e, &b);
+  bu_cpy(&c, &b);
 
-  bu_dbg_printf(&a);
+  /*bu_dbg_printf(&a);
 
   bu_shr_ip(&b, 8);
 
@@ -23,7 +22,10 @@ int main() {
   bu_dbg_printf(&c);
 
   bu_add_ip(&b, &a);
-  bu_dbg_printf(&b);
+  bu_dbg_printf(&b);*/
+
+  bu_mul_digit(&d, &c, 0x111111);
+  bu_dbg_printf(&d);
 
   return 0;
 }

@@ -42,8 +42,6 @@ void bu_add(bigunsigned *a_ptr, bigunsigned *b_ptr, bigunsigned *c_ptr);
 //  a += b
 void bu_add_ip(bigunsigned *a_ptr, bigunsigned *b_ptr);
 
-
-
 // a = b*d
 void bu_mul_digit(bigunsigned *a_ptr, bigunsigned *b_ptr, uint32_t d);
 // a *= d

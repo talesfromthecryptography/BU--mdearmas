@@ -213,6 +213,10 @@ void bu_add_ip(bigunsigned *a_ptr, bigunsigned *b_ptr)
     cnt++;
   }
 
+  while (cnt < a_ptr->used) {
+    cnt++;
+  }
+
   while (cnt < b_ptr->used && carry) {
     nxt = ((uint64_t)b_ptr->digit[b_dig++]) + carry;
     carry = 0 != (nxt&0x100000000);
@@ -233,6 +237,45 @@ void bu_add_ip(bigunsigned *a_ptr, bigunsigned *b_ptr)
 
   a_ptr->used = cnt;
 }
+
+// adapted from this: https://stackoverflow.com/questions/1815367/catch-and-compute-overflow-during-multiplication-of-two-large-integers
+void bu_mul_digit(bigunsigned *a_ptr, bigunsigned *b_ptr, uint32_t d) {
+  bu_clear(a_ptr);
+
+  uint8_t place = b_ptr->base;
+  uint8_t prev = 0;
+  uint16_t cnt = 0;
+
+  uint64_t nxt;
+  uint32_t temp;
+  bigunsigned *carry;
+  uint16_t crry_cnt = 1;
+
+  while(cnt < b_ptr->used) {
+    nxt = (uint64_t)b_ptr->digit[place++] * d;
+    printf("Next %lx\n", nxt);
+    temp = (uint32_t)(nxt >> 32);
+    printf("Temp %x\n", temp);
+    if(temp != 0){
+      carry->digit[place] = temp;
+      crry_cnt += (place - prev);
+      prev = place;
+    }
+    a_ptr->digit[cnt] = (uint32_t)nxt;
+    printf("A %x\n", a_ptr->digit[cnt]);
+    cnt++;
+  }
+  a_ptr->used = cnt;
+  bu_dbg_printf(a_ptr);
+
+  carry->base = 0;
+  carry->digit[carry->base] = 0x0;
+  carry->used = crry_cnt;
+  bu_dbg_printf(carry);
+  bu_add_ip(a_ptr, carry);
+}
+
+//void bu_mul_digit_ip(bigunsigned *a_ptr, uint32_t d);
 
 // return the length in bits (should always be less or equal to 32*a->used)
 uint16_t bu_len(bigunsigned *a_ptr) {
