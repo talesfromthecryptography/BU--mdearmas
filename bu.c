@@ -302,6 +302,80 @@ void bu_mul_digit_ip(bigunsigned *a_ptr, uint32_t d) {
   bu_add_ip(a_ptr, carry);
 }
 
+void bu_mul_digit_sh(bigunsigned *a_ptr, bigunsigned *b_ptr, uint32_t d, uint8_t shift) {
+  bu_clear(a_ptr);
+
+  uint8_t i = b_ptr->base;
+  uint8_t prev = 0;
+  uint8_t place;
+  uint16_t cnt = 0;
+
+  uint64_t nxt;
+  uint32_t temp;
+  bigunsigned *carry;
+  uint16_t crry_cnt = 1;
+
+  while(cnt < b_ptr->used) {
+    nxt = (uint64_t)b_ptr->digit[i++] * d;
+    place = i - b_ptr->base + shift;
+    temp = (uint32_t)(nxt >> 32);
+    if(temp != 0){
+      carry->digit[place] = temp;
+      crry_cnt += (place - prev);
+      prev = place;
+    }
+    a_ptr->digit[cnt + shift] = (uint32_t)nxt;
+    cnt++;
+  }
+  a_ptr->used = cnt + shift;
+
+  carry->base = 0;
+  for(uint8_t k = 0; k <= shift; k++) {
+    carry->digit[k] = 0x0;
+  }
+  carry->used = crry_cnt;
+  bu_add_ip(a_ptr, carry);
+}
+
+void bu_mul(bigunsigned *a_ptr, bigunsigned *b_ptr, bigunsigned *c_ptr) {
+  bu_clear(a_ptr);
+
+  bigunsigned *placeholder;
+
+  uint16_t cnt = 0;
+
+  if(b_ptr->used <= c_ptr->used) //if b is smaller than c
+  {
+    while(cnt < b_ptr->used)
+    {
+      bu_mul_digit_sh(placeholder, c_ptr, b_ptr->digit[cnt], cnt);
+      bu_add_ip(a_ptr, placeholder);
+      cnt++;
+    }
+
+    while(cnt < c_ptr->used)
+    {
+      a_ptr->digit[cnt] += c_ptr->digit[cnt];
+    }
+  }
+  else //if c is smaller than b
+  {
+    while(cnt < c_ptr->used)
+    {
+      bu_mul_digit_sh(placeholder, b_ptr, c_ptr->digit[cnt], cnt);
+      bu_add_ip(a_ptr, placeholder);
+      cnt++;
+    }
+
+    while(cnt < b_ptr->used)
+    {
+      a_ptr->digit[cnt] += b_ptr->digit[cnt];
+    }
+  }
+}
+// a *= b
+void bu_mul_ip(bigunsigned *a_ptr, bigunsigned *b_ptr);
+
 // return the length in bits (should always be less or equal to 32*a->used)
 uint16_t bu_len(bigunsigned *a_ptr) {
   uint16_t res = a_ptr->used<<5;

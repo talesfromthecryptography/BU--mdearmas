@@ -47,6 +47,9 @@ void bu_mul_digit(bigunsigned *a_ptr, bigunsigned *b_ptr, uint32_t d);
 // a *= d
 void bu_mul_digit_ip(bigunsigned *a_ptr, uint32_t d);
 
+//intermediary function for mulciplication
+void bu_mul_digit_sh(bigunsigned *a_ptr, bigunsigned *b_ptr, uint32_t d, uint8_t shift);
+
 // a = b*c
 void bu_mul(bigunsigned *a_ptr, bigunsigned *b_ptr, bigunsigned *c_ptr);
 // a *= b
