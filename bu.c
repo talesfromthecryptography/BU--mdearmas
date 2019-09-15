@@ -374,7 +374,44 @@ void bu_mul(bigunsigned *a_ptr, bigunsigned *b_ptr, bigunsigned *c_ptr) {
   }
 }
 // a *= b
-void bu_mul_ip(bigunsigned *a_ptr, bigunsigned *b_ptr);
+void bu_mul_ip(bigunsigned *a_ptr, bigunsigned *b_ptr) {
+  bu_clear(a_ptr);
+
+  bigunsigned *placeholder;
+  bigunsigned *copy_a;
+  bu_cpy(copy_a, a_ptr);
+
+  uint16_t cnt = 0;
+
+  if(a_ptr->used <= b_ptr->used) //if a is smaller than b
+  {
+    while(cnt < a_ptr->used)
+    {
+      bu_mul_digit_sh(placeholder, b_ptr, copy_a->digit[cnt], cnt);
+      bu_add_ip(a_ptr, placeholder);
+      cnt++;
+    }
+
+    while(cnt < b_ptr->used)
+    {
+      a_ptr->digit[cnt] += b_ptr->digit[cnt];
+    }
+  }
+  else //if c is smaller than b
+  {
+    while(cnt < b_ptr->used)
+    {
+      bu_mul_digit_sh(placeholder, copy_a, b_ptr->digit[cnt], cnt);
+      bu_add_ip(a_ptr, placeholder);
+      cnt++;
+    }
+
+    while(cnt < a_ptr->used)
+    {
+      a_ptr->digit[cnt] += copy_a->digit[cnt];
+    }
+  }
+}
 
 // return the length in bits (should always be less or equal to 32*a->used)
 uint16_t bu_len(bigunsigned *a_ptr) {
