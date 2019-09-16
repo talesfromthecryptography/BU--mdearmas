@@ -30,8 +30,14 @@ int main() {
   //bu_mul_digit_ip(&b, 0x1111);
   //bu_dbg_printf(&b);
 
+  //bu_mul(&d, &b, &a);
+  //bu_dbg_printf(&d);
+
   bu_mul(&d, &a, &b);
   bu_dbg_printf(&d);
+
+  bu_mul_ip(&a, &b);
+  bu_dbg_printf(&a);
 
   return 0;
 }

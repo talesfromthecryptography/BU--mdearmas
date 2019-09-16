@@ -383,19 +383,19 @@ void bu_mul(bigunsigned *a_ptr, bigunsigned *b_ptr, bigunsigned *c_ptr) {
 }
 // a *= b
 void bu_mul_ip(bigunsigned *a_ptr, bigunsigned *b_ptr) {
-  bu_clear(a_ptr);
-
-  bigunsigned *placeholder;
-  bigunsigned *copy_a;
+  bigunsigned* placeholder = (bigunsigned*) malloc(sizeof(uint32_t)*BU_DIGITS);
+  bigunsigned* copy_a = (bigunsigned*) malloc(sizeof(uint32_t)*BU_DIGITS);
   bu_cpy(copy_a, a_ptr);
+  bu_clear(a_ptr);
 
   uint16_t cnt = 0;
 
-  if(a_ptr->used <= b_ptr->used) //if a is smaller than b
+  if(copy_a->used <= b_ptr->used) //if a is smaller than b
   {
-    while(cnt < a_ptr->used)
+    while(cnt < copy_a->used)
     {
       bu_mul_digit_sh(placeholder, b_ptr, copy_a->digit[cnt], cnt);
+      bu_dbg_printf(placeholder);
       bu_add_ip(a_ptr, placeholder);
       cnt++;
     }
@@ -403,6 +403,7 @@ void bu_mul_ip(bigunsigned *a_ptr, bigunsigned *b_ptr) {
     while(cnt < b_ptr->used)
     {
       a_ptr->digit[cnt] += b_ptr->digit[cnt];
+      cnt++;
     }
   }
   else //if c is smaller than b
@@ -414,9 +415,10 @@ void bu_mul_ip(bigunsigned *a_ptr, bigunsigned *b_ptr) {
       cnt++;
     }
 
-    while(cnt < a_ptr->used)
+    while(cnt < copy_a->used)
     {
       a_ptr->digit[cnt] += copy_a->digit[cnt];
+      cnt++;
     }
   }
 }
