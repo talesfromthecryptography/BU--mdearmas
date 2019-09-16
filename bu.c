@@ -353,7 +353,6 @@ void bu_mul(bigunsigned *a_ptr, bigunsigned *b_ptr, bigunsigned *c_ptr) {
     while(cnt < b_ptr->used)
     {
       bu_mul_digit_sh(placeholder, c_ptr, b_ptr->digit[cnt], cnt);
-      bu_dbg_printf(placeholder);
       bu_add_ip(a_ptr, placeholder);
       cnt++;
     }
@@ -395,7 +394,6 @@ void bu_mul_ip(bigunsigned *a_ptr, bigunsigned *b_ptr) {
     while(cnt < copy_a->used)
     {
       bu_mul_digit_sh(placeholder, b_ptr, copy_a->digit[cnt], cnt);
-      bu_dbg_printf(placeholder);
       bu_add_ip(a_ptr, placeholder);
       cnt++;
     }
