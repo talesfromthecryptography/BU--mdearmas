@@ -314,7 +314,7 @@ void bu_mul_digit_sh(bigunsigned *a_ptr, bigunsigned *b_ptr, uint32_t d, uint8_t
 
   uint64_t nxt;
   uint32_t temp;
-  bigunsigned *carry;
+  bigunsigned* carry = (bigunsigned*) malloc(sizeof(uint32_t)*BU_DIGITS);
   uint16_t crry_cnt = 1;
 
   while(cnt < b_ptr->used) {
@@ -336,7 +336,12 @@ void bu_mul_digit_sh(bigunsigned *a_ptr, bigunsigned *b_ptr, uint32_t d, uint8_t
     carry->digit[k] = 0x0;
   }
   carry->used = crry_cnt;
+
+  bu_dbg_printf(a_ptr);
+  bu_dbg_printf(carry);
+
   bu_add_ip(a_ptr, carry);
+  free(carry);
 }
 
 void bu_mul(bigunsigned *a_ptr, bigunsigned *b_ptr, bigunsigned *c_ptr) {
