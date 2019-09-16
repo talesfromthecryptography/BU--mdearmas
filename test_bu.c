@@ -27,8 +27,9 @@ int main() {
   //bu_mul_digit_ip(&b, 0x1111);
   //bu_dbg_printf(&b);
 
-  //bu_mul_digit(&d, &c, 0x1111);
-  //bu_dbg_printf(&d);
+  bu_mul_digit(&d, &c, 0x1111);
+  bu_dbg_printf(&d);
+  bu_dbg_printf(&b);
 
   return 0;
 }

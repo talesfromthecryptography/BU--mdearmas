@@ -5,6 +5,7 @@
 //#include <string.h>
 #include <stdint.h>
 #include <ctype.h>
+#include <stdlib.h>
 
 #define BU_DIGITS 256
 #define BU_MAX_HEX (BU_DIGITS<<3)
