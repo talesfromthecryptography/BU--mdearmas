@@ -24,11 +24,14 @@ int main() {
   bu_add_ip(&b, &a);
   bu_dbg_printf(&b);*/
 
-  bu_mul_digit_sh(&d, &c, 0x1111, 2);
-  bu_dbg_printf(&d);
+  //bu_mul_digit_sh(&d, &c, 0x1111, 2);
+  //bu_dbg_printf(&d);
 
   //bu_mul_digit_ip(&b, 0x1111);
   //bu_dbg_printf(&b);
+
+  bu_mul(&d, &a, &b);
+  bu_dbg_printf(&d);
 
   return 0;
 }
