@@ -93,7 +93,7 @@ void bu_shr(bigunsigned* a_ptr, bigunsigned* b_ptr, uint16_t cnt) {
   uint32_t mask2 = 0xffffffff << bits; //isolates the bits that will not shift words
   uint32_t temp;
 
-  uint16_t pos = b_ptr->base + wrds;
+  uint8_t pos = b_ptr->base + wrds;
   uint16_t index = 0;
 
   a_ptr->base = 0;
@@ -120,7 +120,7 @@ void bu_shr_ip(bigunsigned* a_ptr, uint16_t cnt) {
   uint32_t temp;
 
   a_ptr->base += wrds; //shifts the index of the least significant position
-  uint16_t pos = a_ptr->base;
+  uint8_t pos = a_ptr->base;
   uint16_t i = 0;
 
   //note: seg fault happens if base > used (aka: wraparound). unsure of cause.
