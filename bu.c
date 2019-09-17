@@ -419,6 +419,8 @@ void bu_mul_ip(bigunsigned *a_ptr, bigunsigned *b_ptr) {
       cnt++;
     }
   }
+  free(copy_a);
+  free(placeholder);
 }
 
 // a = b^2
@@ -427,7 +429,10 @@ void bu_sqr(bigunsigned *a_ptr, bigunsigned *b_ptr) {
 }
 // a *= a
 void bu_sqr_ip(bigunsigned *a_ptr) {
-  bu_mul_ip(a_ptr, a_ptr);
+  bigunsigned* copy_a = (bigunsigned*) malloc(sizeof(uint32_t)*BU_DIGITS);
+  bu_cpy(copy_a, a_ptr);
+  bu_mul_ip(a_ptr, copy_a);
+  free(copy_a);
 }
 
 // return the length in bits (should always be less or equal to 32*a->used)
