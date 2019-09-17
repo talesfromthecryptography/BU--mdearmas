@@ -5,7 +5,7 @@
 //#include <string.h>
 #include <stdint.h>
 #include <ctype.h>
-#include <stdlib.h>
+#include <stdlib.h> //for malloc and free
 
 #define BU_DIGITS 256
 #define BU_MAX_HEX (BU_DIGITS<<3)
@@ -48,7 +48,7 @@ void bu_mul_digit(bigunsigned *a_ptr, bigunsigned *b_ptr, uint32_t d);
 // a *= d
 void bu_mul_digit_ip(bigunsigned *a_ptr, uint32_t d);
 
-//intermediary function for mulciplication
+//intermediary function for bu_mul and bu_mul_ip
 void bu_mul_digit_sh(bigunsigned *a_ptr, bigunsigned *b_ptr, uint32_t d, uint8_t shift);
 
 // a = b*c
@@ -67,11 +67,6 @@ uint16_t bu_len(bigunsigned *a_ptr);
 // Convert single ascii character hex digit to numerical value
 // Assumes given a true hex digit, can be lower or upper case
 // Does not check for correct input
-
-
-// Convert single ascii character hex digit to numerical value
-// Assumes given a true hex digit, can be lower or upper case
-// Does not check for correct input
 static inline uint8_t hex2bin(char c) {
   if ('0' <= c && c <= '9')
     return c - '0';
@@ -80,15 +75,8 @@ static inline uint8_t hex2bin(char c) {
 }
 
 // Read from a string of hex digits
-//
-// TODO: This is wrong. See the test main.c
-//       Modify to resolve 'endian' conflict.
-//       Also modify to permit strings to include whitespace
-//        that will be ignored. For example, "DEAD BEEF" should
-//        be legal input resulting in te value 0xDEADBEEF.
-
 void bu_readhex(bigunsigned * a_ptr, char *s);
-//
+//Print a bigunsigned
 void bu_dbg_printf(bigunsigned *a_ptr);
 
 #endif

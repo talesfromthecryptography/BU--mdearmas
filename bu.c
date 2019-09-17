@@ -189,6 +189,7 @@ void bu_add(bigunsigned *a_ptr, bigunsigned *b_ptr, bigunsigned *c_ptr) {
   a_ptr->used = cnt;
 }
 
+// a += b
 void bu_add_ip(bigunsigned *a_ptr, bigunsigned *b_ptr)
 {
   uint8_t carry = 0;
@@ -243,20 +244,20 @@ void bu_mul_digit(bigunsigned *a_ptr, bigunsigned *b_ptr, uint32_t d) {
   bu_clear(a_ptr);
 
   uint8_t i = b_ptr->base;
-  uint8_t prev = 0;
-  uint8_t place;
+  uint8_t prev = 0; //location of the previous carry's place
+  uint8_t place; //where the carry goes
   uint16_t cnt = 0;
 
   uint64_t nxt;
   uint32_t temp;
-  bigunsigned* carry = (bigunsigned*) malloc(sizeof(uint32_t)*BU_DIGITS);
+  bigunsigned* carry = (bigunsigned*) malloc(sizeof(uint32_t)*BU_DIGITS); //compounds all the multiplication carries into one bigunsigned to add at once
   uint16_t crry_cnt = 1;
 
   while(cnt < b_ptr->used) {
     nxt = (uint64_t)b_ptr->digit[i++] * d;
     place = i - b_ptr->base;
     temp = (uint32_t)(nxt >> 32);
-    if(temp != 0){
+    if(temp != 0){ //if the carry value isn't equal to 0
       carry->digit[place] = temp;
       crry_cnt += (place - prev);
       prev = place;
@@ -267,7 +268,7 @@ void bu_mul_digit(bigunsigned *a_ptr, bigunsigned *b_ptr, uint32_t d) {
   a_ptr->used = cnt;
 
   carry->base = 0;
-  carry->digit[carry->base] = 0x0;
+  carry->digit[carry->base] = 0x0; //ensures least significant place is set to 0
   carry->used = crry_cnt;
   bu_add_ip(a_ptr, carry);
   free(carry);
@@ -304,6 +305,7 @@ void bu_mul_digit_ip(bigunsigned *a_ptr, uint32_t d) {
   free(carry);
 }
 
+//intermediary function for bu_mul and bu_mul_ip. multiplies a whole bigunsigned by a digit and shifts left according to digit's place
 void bu_mul_digit_sh(bigunsigned *a_ptr, bigunsigned *b_ptr, uint32_t d, uint8_t shift) {
   bu_clear(a_ptr);
 
@@ -333,7 +335,7 @@ void bu_mul_digit_sh(bigunsigned *a_ptr, bigunsigned *b_ptr, uint32_t d, uint8_t
 
   carry->base = 0;
   for(uint8_t k = 0; k <= shift; k++) {
-    carry->digit[k] = 0x0;
+    carry->digit[k] = 0x0; //ensures lowest places are set to 0 (I couldn't figure out memset)
   }
   carry->used = crry_cnt;
 
@@ -341,10 +343,11 @@ void bu_mul_digit_sh(bigunsigned *a_ptr, bigunsigned *b_ptr, uint32_t d, uint8_t
   free(carry);
 }
 
+//a = b*c
 void bu_mul(bigunsigned *a_ptr, bigunsigned *b_ptr, bigunsigned *c_ptr) {
   bu_clear(a_ptr);
 
-  bigunsigned* placeholder = (bigunsigned*) malloc(sizeof(uint32_t)*BU_DIGITS);
+  bigunsigned* placeholder = (bigunsigned*) malloc(sizeof(uint32_t)*BU_DIGITS); //holds the product per digit
 
   uint16_t cnt = 0;
 
@@ -356,12 +359,6 @@ void bu_mul(bigunsigned *a_ptr, bigunsigned *b_ptr, bigunsigned *c_ptr) {
       bu_add_ip(a_ptr, placeholder);
       cnt++;
     }
-
-    while(cnt < c_ptr->used)
-    {
-      a_ptr->digit[cnt] += c_ptr->digit[cnt];
-      cnt++;
-    }
   }
   else //if c is smaller than b
   {
@@ -371,15 +368,10 @@ void bu_mul(bigunsigned *a_ptr, bigunsigned *b_ptr, bigunsigned *c_ptr) {
       bu_add_ip(a_ptr, placeholder);
       cnt++;
     }
-
-    while(cnt < b_ptr->used)
-    {
-      a_ptr->digit[cnt] += b_ptr->digit[cnt];
-      cnt++;
-    }
   }
   free(placeholder);
 }
+
 // a *= b
 void bu_mul_ip(bigunsigned *a_ptr, bigunsigned *b_ptr) {
   bigunsigned* placeholder = (bigunsigned*) malloc(sizeof(uint32_t)*BU_DIGITS);
@@ -397,12 +389,6 @@ void bu_mul_ip(bigunsigned *a_ptr, bigunsigned *b_ptr) {
       bu_add_ip(a_ptr, placeholder);
       cnt++;
     }
-
-    while(cnt < b_ptr->used)
-    {
-      a_ptr->digit[cnt] += b_ptr->digit[cnt];
-      cnt++;
-    }
   }
   else //if c is smaller than b
   {
@@ -410,12 +396,6 @@ void bu_mul_ip(bigunsigned *a_ptr, bigunsigned *b_ptr) {
     {
       bu_mul_digit_sh(placeholder, copy_a, b_ptr->digit[cnt], cnt);
       bu_add_ip(a_ptr, placeholder);
-      cnt++;
-    }
-
-    while(cnt < copy_a->used)
-    {
-      a_ptr->digit[cnt] += copy_a->digit[cnt];
       cnt++;
     }
   }
@@ -427,6 +407,7 @@ void bu_mul_ip(bigunsigned *a_ptr, bigunsigned *b_ptr) {
 void bu_sqr(bigunsigned *a_ptr, bigunsigned *b_ptr) {
   bu_mul(a_ptr, b_ptr, b_ptr);
 }
+
 // a *= a
 void bu_sqr_ip(bigunsigned *a_ptr) {
   bigunsigned* copy_a = (bigunsigned*) malloc(sizeof(uint32_t)*BU_DIGITS);
@@ -449,13 +430,6 @@ uint16_t bu_len(bigunsigned *a_ptr) {
 }
 
 // Read from a string of hex digits
-//
-// TODO: This is wrong. See the test main.c
-//       Modify to resolve 'endian' conflict.
-//       Also modify to permit strings to include whitespace
-//        that will be ignored. For example, "DEAD BEEF" should
-//        be legal input resulting in the value 0xDEADBEEF.
-
 void bu_readhex(bigunsigned * a_ptr, char *s) {
   bu_clear(a_ptr);
 
@@ -471,7 +445,7 @@ void bu_readhex(bigunsigned * a_ptr, char *s) {
   a_ptr->used = (cnt>>3) + ((cnt&0x7)!=0);
 }
 
-//
+//prints a bigunsigned
 void bu_dbg_printf(bigunsigned *a_ptr) {
   printf("Used %x\n", a_ptr->used);
   printf("Base %x\n", a_ptr->base);
